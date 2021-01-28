@@ -1,4 +1,4 @@
-/**************************************************************
+/****************************************************************************************
    WiFiManager is a library for the ESP8266/Arduino platform
    (https://github.com/esp8266/Arduino) to enable easy
    configuration and reconfiguration of WiFi credentials using a Captive Portal
@@ -8,7 +8,7 @@
    https://github.com/esp8266/Arduino/tree/master/libraries/DNSServer/examples/CaptivePortalAdvanced
    Built by AlexT https://github.com/tzapu
    Licensed under MIT license
- **************************************************************/
+  ***********************EDITTED FOR TAMRA (NAWA-MVP)***************************************/
 
 #include "WiFiManager.h"
 
@@ -249,6 +249,9 @@ boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPasswo
           DEBUG_WM(F("Failed to connect."));
         }
         else {
+          if(_aCode == ""){
+          DEBUG_WM(F("No Activation Code"));
+          }
           //connected
           WiFi.mode(WIFI_STA);
           //notify that configuration has changed and any optional parameters should be saved
@@ -631,6 +634,7 @@ void WiFiManager::handleWifiSave() {
   //SAVE/connect here
   _ssid = server->arg("s").c_str();
   _pass = server->arg("p").c_str();
+  _aCode = server->arg("a").c_str();
 
   //parameters
   for (int i = 0; i < _paramsCount; i++) {
@@ -682,6 +686,11 @@ void WiFiManager::handleWifiSave() {
 
   connect = true; //signal ready to connect/reset
 }
+
+String WiFiManager::getActivationCode() {
+  return _aCode;
+}
+
 
 /** Handle the info page */
 void WiFiManager::handleInfo() {
@@ -845,3 +854,4 @@ String WiFiManager::toStringIp(IPAddress ip) {
   res += String(((ip >> 8 * 3)) & 0xFF);
   return res;
 }
+
