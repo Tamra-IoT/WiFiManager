@@ -1,11 +1,11 @@
 {
-  "name": "WiFiManager",
+  "name": "WifiTamra",
   "keywords": "wifi, wi-fi, esp8266",
-  "description": "ESP8266 WiFi Connection manager with fallback web configuration portal",
+  "description": "ESP8266 WiFi Connection manager for tamra with fallback web configuration portal",
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/tzapu/WiFiManager.git"
+    "url": "https://github.com/Tamra-IoT/WiFiManager.git"
   },
   "frameworks": "arduino",
   "platforms": "espressif8266",

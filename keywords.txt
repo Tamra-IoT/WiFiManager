@@ -6,8 +6,8 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-WiFiManager	KEYWORD1
-WiFiManagerParameter KEYWORD1
+WifiTamra	KEYWORD1
+WifiTamraParameter KEYWORD1
 
 
 #######################################
@@ -16,6 +16,7 @@ WiFiManagerParameter KEYWORD1
 autoConnect	KEYWORD2
 getSSID	KEYWORD2
 getPassword	KEYWORD2
+getActivationCode KEYWORD2
 getConfigPortalSSID KEYWORD2
 resetSettings	KEYWORD2
 setConfigPortalTimeout	KEYWORD2

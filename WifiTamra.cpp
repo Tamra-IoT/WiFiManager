@@ -1,5 +1,5 @@
 /****************************************************************************************
-   WiFiManager is a library for the ESP8266/Arduino platform
+   WifiTamra is a library for the ESP8266/Arduino platform
    (https://github.com/esp8266/Arduino) to enable easy
    configuration and reconfiguration of WiFi credentials using a Captive Portal
    inspired by:
@@ -12,7 +12,7 @@
 
 #include "WiFiManager.h"
 
-WiFiManagerParameter::WiFiManagerParameter(const char *custom) {
+WifiTamraParameter::WifiTamraParameter(const char *custom) {
   _id = NULL;
   _placeholder = NULL;
   _length = 0;
@@ -21,15 +21,15 @@ WiFiManagerParameter::WiFiManagerParameter(const char *custom) {
   _customHTML = custom;
 }
 
-WiFiManagerParameter::WiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length) {
+WifiTamraParameter::WifiTamraParameter(const char *id, const char *placeholder, const char *defaultValue, int length) {
   init(id, placeholder, defaultValue, length, "");
 }
 
-WiFiManagerParameter::WiFiManagerParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom) {
+WifiTamraParameter::WifiTamraParameter(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom) {
   init(id, placeholder, defaultValue, length, custom);
 }
 
-void WiFiManagerParameter::init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom) {
+void WifiTamraParameter::init(const char *id, const char *placeholder, const char *defaultValue, int length, const char *custom) {
   _id = id;
   _placeholder = placeholder;
   _length = length;
@@ -44,35 +44,35 @@ void WiFiManagerParameter::init(const char *id, const char *placeholder, const c
   _customHTML = custom;
 }
 
-WiFiManagerParameter::~WiFiManagerParameter() {
+WifiTamraParameter::~WifiTamraParameter() {
   if (_value != NULL) {
     delete[] _value;
   }
 }
 
-const char* WiFiManagerParameter::getValue() {
+const char* WifiTamraParameter::getValue() {
   return _value;
 }
-const char* WiFiManagerParameter::getID() {
+const char* WifiTamraParameter::getID() {
   return _id;
 }
-const char* WiFiManagerParameter::getPlaceholder() {
+const char* WifiTamraParameter::getPlaceholder() {
   return _placeholder;
 }
-int WiFiManagerParameter::getValueLength() {
+int WifiTamraParameter::getValueLength() {
   return _length;
 }
-const char* WiFiManagerParameter::getCustomHTML() {
+const char* WifiTamraParameter::getCustomHTML() {
   return _customHTML;
 }
 
 
-WiFiManager::WiFiManager() {
+WifiTamra::WifiTamra() {
     _max_params = WIFI_MANAGER_MAX_PARAMS;
-    _params = (WiFiManagerParameter**)malloc(_max_params * sizeof(WiFiManagerParameter*));
+    _params = (WifiTamraParameter**)malloc(_max_params * sizeof(WifiTamraParameter*));
 }
 
-WiFiManager::~WiFiManager()
+WifiTamra::~WifiTamra()
 {
     if (_params != NULL)
     {
@@ -81,14 +81,14 @@ WiFiManager::~WiFiManager()
     }
 }
 
-bool WiFiManager::addParameter(WiFiManagerParameter *p) {
+bool WifiTamra::addParameter(WifiTamraParameter *p) {
   if(_paramsCount + 1 > _max_params)
   {
     // rezise the params array
     _max_params += WIFI_MANAGER_MAX_PARAMS;
     DEBUG_WM(F("Increasing _max_params to:"));
     DEBUG_WM(_max_params);
-    WiFiManagerParameter** new_params = (WiFiManagerParameter**)realloc(_params, _max_params * sizeof(WiFiManagerParameter*));
+    WifiTamraParameter** new_params = (WifiTamraParameter**)realloc(_params, _max_params * sizeof(WifiTamraParameter*));
     if (new_params != NULL) {
       _params = new_params;
     } else {
@@ -104,7 +104,7 @@ bool WiFiManager::addParameter(WiFiManagerParameter *p) {
   return true;
 }
 
-void WiFiManager::setupConfigPortal() {
+void WifiTamra::setupConfigPortal() {
   dnsServer.reset(new DNSServer());
   server.reset(new ESP8266WebServer(80));
 
@@ -143,25 +143,25 @@ void WiFiManager::setupConfigPortal() {
   dnsServer->start(DNS_PORT, "*", WiFi.softAPIP());
 
   /* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
-  server->on(String(F("/")).c_str(), std::bind(&WiFiManager::handleRoot, this));
-  server->on(String(F("/wifi")).c_str(), std::bind(&WiFiManager::handleWifi, this, true));
-  server->on(String(F("/0wifi")).c_str(), std::bind(&WiFiManager::handleWifi, this, false));
-  server->on(String(F("/wifisave")).c_str(), std::bind(&WiFiManager::handleWifiSave, this));
-  server->on(String(F("/i")).c_str(), std::bind(&WiFiManager::handleInfo, this));
-  server->on(String(F("/r")).c_str(), std::bind(&WiFiManager::handleReset, this));
-  //server->on("/generate_204", std::bind(&WiFiManager::handle204, this));  //Android/Chrome OS captive portal check.
-  server->on(String(F("/fwlink")).c_str(), std::bind(&WiFiManager::handleRoot, this));  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
-  server->onNotFound (std::bind(&WiFiManager::handleNotFound, this));
+  server->on(String(F("/")).c_str(), std::bind(&WifiTamra::handleRoot, this));
+  server->on(String(F("/wifi")).c_str(), std::bind(&WifiTamra::handleWifi, this, true));
+  server->on(String(F("/0wifi")).c_str(), std::bind(&WifiTamra::handleWifi, this, false));
+  server->on(String(F("/wifisave")).c_str(), std::bind(&WifiTamra::handleWifiSave, this));
+  server->on(String(F("/i")).c_str(), std::bind(&WifiTamra::handleInfo, this));
+  server->on(String(F("/r")).c_str(), std::bind(&WifiTamra::handleReset, this));
+  //server->on("/generate_204", std::bind(&WifiTamra::handle204, this));  //Android/Chrome OS captive portal check.
+  server->on(String(F("/fwlink")).c_str(), std::bind(&WifiTamra::handleRoot, this));  //Microsoft captive portal. Maybe not needed. Might be handled by notFound handler.
+  server->onNotFound (std::bind(&WifiTamra::handleNotFound, this));
   server->begin(); // Web server start
   DEBUG_WM(F("HTTP server started"));
 }
 
-boolean WiFiManager::autoConnect() {
+boolean WifiTamra::autoConnect() {
   String ssid = "ESP" + String(ESP.getChipId());
   return autoConnect(ssid.c_str(), NULL);
 }
 
-boolean WiFiManager::autoConnect(char const *apName, char const *apPassword) {
+boolean WifiTamra::autoConnect(char const *apName, char const *apPassword) {
   DEBUG_WM(F(""));
   DEBUG_WM(F("AutoConnect"));
 
@@ -182,7 +182,7 @@ boolean WiFiManager::autoConnect(char const *apName, char const *apPassword) {
   return startConfigPortal(apName, apPassword);
 }
 
-boolean WiFiManager::configPortalHasTimeout(){
+boolean WifiTamra::configPortalHasTimeout(){
     if(_configPortalTimeout == 0 || wifi_softap_get_station_num() > 0){
       _configPortalStart = millis(); // kludge, bump configportal start time to skew timeouts
       return false;
@@ -190,12 +190,12 @@ boolean WiFiManager::configPortalHasTimeout(){
     return (millis() > _configPortalStart + _configPortalTimeout);
 }
 
-boolean WiFiManager::startConfigPortal() {
+boolean WifiTamra::startConfigPortal() {
   String ssid = "ESP" + String(ESP.getChipId());
   return startConfigPortal(ssid.c_str(), NULL);
 }
 
-boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPassword) {
+boolean  WifiTamra::startConfigPortal(char const *apName, char const *apPassword) {
   
   if(!WiFi.isConnected()){
     WiFi.persistent(false);
@@ -294,7 +294,7 @@ boolean  WiFiManager::startConfigPortal(char const *apName, char const *apPasswo
 }
 
 
-int WiFiManager::connectWifi(String ssid, String pass) {
+int WifiTamra::connectWifi(String ssid, String pass) {
   DEBUG_WM(F("Connecting as wifi client..."));
 
   // check if we've got static_ip settings, if we do, use those.
@@ -351,7 +351,7 @@ int WiFiManager::connectWifi(String ssid, String pass) {
   return connRes;
 }
 
-uint8_t WiFiManager::waitForConnectResult() {
+uint8_t WifiTamra::waitForConnectResult() {
   if (_connectTimeout == 0) {
     return WiFi.waitForConnectResult();
   } else {
@@ -374,13 +374,13 @@ uint8_t WiFiManager::waitForConnectResult() {
   }
 }
 
-void WiFiManager::startWPS() {
+void WifiTamra::startWPS() {
   DEBUG_WM(F("START WPS"));
   WiFi.beginWPSConfig();
   DEBUG_WM(F("END WPS"));
 }
 /*
-  String WiFiManager::getSSID() {
+  String WifiTamra::getSSID() {
   if (_ssid == "") {
     DEBUG_WM(F("Reading SSID"));
     _ssid = WiFi.SSID();
@@ -390,7 +390,7 @@ void WiFiManager::startWPS() {
   return _ssid;
   }
 
-  String WiFiManager::getPassword() {
+  String WifiTamra::getPassword() {
   if (_pass == "") {
     DEBUG_WM(F("Reading Password"));
     _pass = WiFi.psk();
@@ -400,54 +400,54 @@ void WiFiManager::startWPS() {
   return _pass;
   }
 */
-String WiFiManager::getConfigPortalSSID() {
+String WifiTamra::getConfigPortalSSID() {
   return _apName;
 }
 
-void WiFiManager::resetSettings() {
+void WifiTamra::resetSettings() {
   DEBUG_WM(F("settings invalidated"));
   DEBUG_WM(F("THIS MAY CAUSE AP NOT TO START UP PROPERLY. YOU NEED TO COMMENT IT OUT AFTER ERASING THE DATA."));
   WiFi.disconnect(true);
   //delay(200);
 }
-void WiFiManager::setTimeout(unsigned long seconds) {
+void WifiTamra::setTimeout(unsigned long seconds) {
   setConfigPortalTimeout(seconds);
 }
 
-void WiFiManager::setConfigPortalTimeout(unsigned long seconds) {
+void WifiTamra::setConfigPortalTimeout(unsigned long seconds) {
   _configPortalTimeout = seconds * 1000;
 }
 
-void WiFiManager::setConnectTimeout(unsigned long seconds) {
+void WifiTamra::setConnectTimeout(unsigned long seconds) {
   _connectTimeout = seconds * 1000;
 }
 
-void WiFiManager::setDebugOutput(boolean debug) {
+void WifiTamra::setDebugOutput(boolean debug) {
   _debug = debug;
 }
 
-void WiFiManager::setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn) {
+void WifiTamra::setAPStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn) {
   _ap_static_ip = ip;
   _ap_static_gw = gw;
   _ap_static_sn = sn;
 }
 
-void WiFiManager::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn) {
+void WifiTamra::setSTAStaticIPConfig(IPAddress ip, IPAddress gw, IPAddress sn) {
   _sta_static_ip = ip;
   _sta_static_gw = gw;
   _sta_static_sn = sn;
 }
 
-void WiFiManager::setMinimumSignalQuality(int quality) {
+void WifiTamra::setMinimumSignalQuality(int quality) {
   _minimumQuality = quality;
 }
 
-void WiFiManager::setBreakAfterConfig(boolean shouldBreak) {
+void WifiTamra::setBreakAfterConfig(boolean shouldBreak) {
   _shouldBreakAfterConfig = shouldBreak;
 }
 
 /** Handle root or redirect to captive portal */
-void WiFiManager::handleRoot() {
+void WifiTamra::handleRoot() {
   DEBUG_WM(F("Handle root"));
   if (captivePortal()) { // If caprive portal redirect instead of displaying the page.
     return;
@@ -462,7 +462,7 @@ void WiFiManager::handleRoot() {
   page += String(F("<h1>"));
   page += _apName;
   page += String(F("</h1>"));
-  page += String(F("<h3>WiFiManager</h3>"));
+  page += String(F("<h3>WifiTamra</h3>"));
   page += FPSTR(HTTP_PORTAL_OPTIONS);
   page += FPSTR(HTTP_END);
 
@@ -472,7 +472,7 @@ void WiFiManager::handleRoot() {
 }
 
 /** Wifi config page handler */
-void WiFiManager::handleWifi(boolean scan) {
+void WifiTamra::handleWifi(boolean scan) {
 
   String page = FPSTR(HTTP_HEADER);
   page.replace("{v}", "Config ESP");
@@ -628,7 +628,7 @@ void WiFiManager::handleWifi(boolean scan) {
 }
 
 /** Handle the WLAN save form and redirect to WLAN config page again */
-void WiFiManager::handleWifiSave() {
+void WifiTamra::handleWifiSave() {
   DEBUG_WM(F("WiFi save"));
 
   //SAVE/connect here
@@ -687,13 +687,13 @@ void WiFiManager::handleWifiSave() {
   connect = true; //signal ready to connect/reset
 }
 
-String WiFiManager::getActivationCode() {
+String WifiTamra::getActivationCode() {
   return _aCode;
 }
 
 
 /** Handle the info page */
-void WiFiManager::handleInfo() {
+void WifiTamra::handleInfo() {
   DEBUG_WM(F("Info"));
 
   String page = FPSTR(HTTP_HEADER);
@@ -734,7 +734,7 @@ void WiFiManager::handleInfo() {
 }
 
 /** Handle the reset page */
-void WiFiManager::handleReset() {
+void WifiTamra::handleReset() {
   DEBUG_WM(F("Reset"));
 
   String page = FPSTR(HTTP_HEADER);
@@ -755,7 +755,7 @@ void WiFiManager::handleReset() {
   delay(2000);
 }
 
-void WiFiManager::handleNotFound() {
+void WifiTamra::handleNotFound() {
   if (captivePortal()) { // If captive portal redirect instead of displaying the error page.
     return;
   }
@@ -780,7 +780,7 @@ void WiFiManager::handleNotFound() {
 
 
 /** Redirect to captive portal if we got a request for another domain. Return true in that case so the page handler do not try to handle the request again. */
-boolean WiFiManager::captivePortal() {
+boolean WifiTamra::captivePortal() {
   if (!isIp(server->hostHeader()) ) {
     DEBUG_WM(F("Request redirected to captive portal"));
     server->sendHeader("Location", String("http://") + toStringIp(server->client().localIP()), true);
@@ -792,36 +792,36 @@ boolean WiFiManager::captivePortal() {
 }
 
 //start up config portal callback
-void WiFiManager::setAPCallback( void (*func)(WiFiManager* myWiFiManager) ) {
+void WifiTamra::setAPCallback( void (*func)(WifiTamra* myWiFiManager) ) {
   _apcallback = func;
 }
 
 //start up save config callback
-void WiFiManager::setSaveConfigCallback( void (*func)(void) ) {
+void WifiTamra::setSaveConfigCallback( void (*func)(void) ) {
   _savecallback = func;
 }
 
 //sets a custom element to add to head, like a new style tag
-void WiFiManager::setCustomHeadElement(const char* element) {
+void WifiTamra::setCustomHeadElement(const char* element) {
   _customHeadElement = element;
 }
 
 //if this is true, remove duplicated Access Points - defaut true
-void WiFiManager::setRemoveDuplicateAPs(boolean removeDuplicates) {
+void WifiTamra::setRemoveDuplicateAPs(boolean removeDuplicates) {
   _removeDuplicateAPs = removeDuplicates;
 }
 
 
 
 template <typename Generic>
-void WiFiManager::DEBUG_WM(Generic text) {
+void WifiTamra::DEBUG_WM(Generic text) {
   if (_debug) {
     Serial.print("*WM: ");
     Serial.println(text);
   }
 }
 
-int WiFiManager::getRSSIasQuality(int RSSI) {
+int WifiTamra::getRSSIasQuality(int RSSI) {
   int quality = 0;
 
   if (RSSI <= -100) {
@@ -835,7 +835,7 @@ int WiFiManager::getRSSIasQuality(int RSSI) {
 }
 
 /** Is this an IP? */
-boolean WiFiManager::isIp(String str) {
+boolean WifiTamra::isIp(String str) {
   for (size_t i = 0; i < str.length(); i++) {
     int c = str.charAt(i);
     if (c != '.' && (c < '0' || c > '9')) {
@@ -846,7 +846,7 @@ boolean WiFiManager::isIp(String str) {
 }
 
 /** IP to String? */
-String WiFiManager::toStringIp(IPAddress ip) {
+String WifiTamra::toStringIp(IPAddress ip) {
   String res = "";
   for (int i = 0; i < 3; i++) {
     res += String((ip >> (8 * i)) & 0xFF) + ".";
